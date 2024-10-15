@@ -316,6 +316,7 @@ std::string Context::GetName() {
 std::string Context::GetShortName() {
     return mShortName;
 }
+#if defined(__APPLE__)
 std::string ExpandTilde(const std::string& path) {
     if (path[0] == '~') {
         // Get the home directory path
@@ -328,6 +329,7 @@ std::string ExpandTilde(const std::string& path) {
     }
     return path;  // Return the original path if it doesn't start with "~"
 }
+#endif
 
 std::string Context::GetAppBundlePath() {
 #if defined(__ANDROID__)
