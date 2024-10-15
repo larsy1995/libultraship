@@ -385,17 +385,24 @@ std::string Context::GetAppDirectoryPath(std::string appName) {
 
 #if defined(__APPLE__)
     if (char* fpath = std::getenv("SHIP_HOME")) {
-        std::string modsPath = ExpandTilde(fpath) + "/mods";
-        std::string filePath = modsPath + "/example.txt";
+        std::string expandedPath = ExpandTilde(fpath);
+        std::string modsPath = expandedPath + "/mods";
+        std::string filePath = modsPath + "/custom_otr_files_go_here.txt";
 
         // Ensure SHIP_HOME and "mods" directory exist
-        std::filesystem::create_directories(modsPath);
+        if (std::filesystem::create_directories(modsPath)) {
+            std::cout << "Directory created at: " << modsPath << std::endl;
+        }
 
-        // Only create the text file if it doesn't already exist
+        // Check if the text file exists, only create it if it doesn't
         if (!std::filesystem::exists(filePath)) {
             std::ofstream(filePath).close();
             std::cout << "Text file created at: " << filePath << std::endl;
+        } else {
+            std::cout << "Text file already exists at: " << filePath << std::endl;
         }
+
+        return expandedPath;
     }
 #endif
     
