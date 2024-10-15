@@ -8,7 +8,6 @@
 #include "graphic/Fast3D/debug/GfxDebugger.h"
 #include "graphic/Fast3D/Fast3dWindow.h"
 #include <fstream>
-#include <filesystem>
 
 #ifdef _WIN32
 #include <tchar.h>
