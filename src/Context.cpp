@@ -367,8 +367,14 @@ std::string Context::GetAppDirectoryPath(std::string appName) {
     const char* home = getenv("HOME");
     return std::string(home) + "/Documents";
 #endif
-
-#if defined(__linux__) || defined(__APPLE__)
+#if defined(__APPLE__)
+    FolderManager folderManager;
+    std::string fpath = std::string(folderManager.pathForDirectory(NSApplicationSupportDirectory, NSUserDomainMask));
+    fpath.append("/com.shipofharkinian.soh");
+    return fpath;
+#endif
+    
+#if defined(__linux__)
     char* fpath = std::getenv("SHIP_HOME");
     if (fpath != NULL) {
         return std::string(fpath);
