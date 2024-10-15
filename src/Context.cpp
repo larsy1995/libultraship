@@ -8,6 +8,7 @@
 #include "graphic/Fast3D/debug/GfxDebugger.h"
 #include "graphic/Fast3D/Fast3dWindow.h"
 #include <fstream>
+#include <filesystem>
 
 #ifdef _WIN32
 #include <tchar.h>
@@ -318,17 +319,13 @@ std::string Context::GetShortName() {
 }
 
 #if defined(__APPLE__)
+//Expanded tilde function to get the full path to the application user directory
 std::string ExpandTilde(const std::string& path) {
     if (path[0] == '~') {
-        // Get the home directory path
-        const char* home = getenv("HOME");
-        if (home == NULL) {
-            home = getpwuid(getuid())->pw_dir;
-        }
-        // Replace "~" with the home directory
+        const char* home = getenv("HOME") ? getenv("HOME") : getpwuid(getuid())->pw_dir;
         return std::string(home) + path.substr(1);
     }
-    return path;  // Return the original path if it doesn't start with "~"
+    return path;
 }
 #endif
 
