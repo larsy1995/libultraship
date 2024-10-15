@@ -7,7 +7,6 @@
 #include "install_config.h"
 #include "graphic/Fast3D/debug/GfxDebugger.h"
 #include "graphic/Fast3D/Fast3dWindow.h"
-#include <string>
 
 #ifdef _WIN32
 #include <tchar.h>
@@ -316,18 +315,15 @@ std::string Context::GetName() {
 std::string Context::GetShortName() {
     return mShortName;
 }
+
 #if defined(__APPLE__)
+//Expanded tilde function to get the full path to the application user directory
 std::string ExpandTilde(const std::string& path) {
     if (path[0] == '~') {
-        // Get the home directory path
-        const char* home = getenv("HOME");
-        if (home == NULL) {
-            home = getpwuid(getuid())->pw_dir;
-        }
-        // Replace "~" with the home directory
+        const char* home = getenv("HOME") ? getenv("HOME") : getpwuid(getuid())->pw_dir;
         return std::string(home) + path.substr(1);
     }
-    return path;  // Return the original path if it doesn't start with "~"
+    return path;
 }
 #endif
 
@@ -386,21 +382,21 @@ std::string Context::GetAppDirectoryPath(std::string appName) {
 #endif
 
 #if defined(__APPLE__)
-    char* fpath = std::getenv("SHIP_HOME");
-    if (fpath != NULL) {
-        std::string expandedPath = ExpandTilde(std::string(fpath));
-        
-        // Check if the directory exists and create it if not
-        if (!std::filesystem::exists(expandedPath)) {
-            if (std::filesystem::create_directory(expandedPath)) {
-                std::cout << "Directory created successfully at: " << expandedPath << std::endl;
-            } else {
-                std::cerr << "Failed to create directory at: " << expandedPath << std::endl;
-            }
+    if (char* fpath = std::getenv("SHIP_HOME")) {
+        std::string modsPath = ExpandTilde(fpath) + "/mods";
+        std::string filePath = modsPath + "/custom_otr_files_go_here.txt";
+
+        // Ensure SHIP_HOME and "mods" directory exist
+        std::filesystem::create_directories(modsPath);
+
+        // Only create the text file if it doesn't already exist
+        if (!std::filesystem::exists(filePath)) {
+            std::ofstream(filePath).close();
+            std::cout << "Text file created at: " << filePath << std::endl;
         }
-        return expandedPath;
     }
 #endif
+  
     
 #if defined(__linux__)
     char* fpath = std::getenv("SHIP_HOME");
