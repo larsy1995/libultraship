@@ -7,6 +7,9 @@
 #include "install_config.h"
 #include "graphic/Fast3D/debug/GfxDebugger.h"
 #include "graphic/Fast3D/Fast3dWindow.h"
+#include <unistd.h>
+#include <pwd.h>
+#include <string>
 
 #ifdef _WIN32
 #include <tchar.h>
@@ -313,6 +316,18 @@ std::string Context::GetName() {
 std::string Context::GetShortName() {
     return mShortName;
 }
+std::string ExpandTilde(const std::string& path) {
+    if (path[0] == '~') {
+        // Get the home directory path
+        const char* home = getenv("HOME");
+        if (home == NULL) {
+            home = getpwuid(getuid())->pw_dir;
+        }
+        // Replace "~" with the home directory
+        return std::string(home) + path.substr(1);
+    }
+    return path;  // Return the original path if it doesn't start with "~"
+}
 
 std::string Context::GetAppBundlePath() {
 #if defined(__ANDROID__)
@@ -367,11 +382,13 @@ std::string Context::GetAppDirectoryPath(std::string appName) {
     const char* home = getenv("HOME");
     return std::string(home) + "/Documents";
 #endif
+
 #if defined(__APPLE__)
-    FolderManager folderManager;
-    std::string fpath = std::string(folderManager.pathForDirectory(NSApplicationSupportDirectory, NSUserDomainMask));
-    fpath.append("/com.shipofharkinian.soh");
-    return fpath;
+    char* fpath = std::getenv("SHIP_HOME");
+    if (fpath != NULL) {
+        std::string expandedPath = ExpandTilde(std::string(fpath));
+        return expandedPath;
+    }
 #endif
     
 #if defined(__linux__)
