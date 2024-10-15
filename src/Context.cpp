@@ -16,6 +16,8 @@
 #include "utils/AppleFolderManager.h"
 #include <unistd.h>
 #include <pwd.h>
+#include <fstream>
+#include <filesystem>
 #endif
 
 namespace Ship {
