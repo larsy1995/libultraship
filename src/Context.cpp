@@ -368,10 +368,18 @@ std::string Context::GetAppDirectoryPath(std::string appName) {
     return std::string(home) + "/Documents";
 #endif
 #if defined(__APPLE__)
-    FolderManager folderManager;
-    std::string fpath = std::string(folderManager.pathForDirectory(NSApplicationSupportDirectory, NSUserDomainMask));
-    fpath.append("/com.shipofharkinian.soh");
-    return fpath;
+    std::string relativePath;
+    
+    if (appType == "soh") {
+        relativePath = "/com.shipofharkinian.soh";
+    } else if (appType == "2s2h") {
+        relativePath = "/com.2ship2harkinian.2s2h";
+    } else {
+        // Handle the case where neither appType matches, potentially throwing an error
+        throw std::invalid_argument("Invalid appType provided.");
+    }
+    
+    return Context::GetPathRelativeToAppDirectory("", relativePath);
 #endif
     
 #if defined(__linux__)
