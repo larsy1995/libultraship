@@ -316,14 +316,29 @@ std::string Context::GetShortName() {
     return mShortName;
 }
 
-#if defined(__APPLE__)
+//#if defined(__APPLE__)
 //Expanded tilde function to get the full path to the application user directory
+//std::string ExpandTilde(const std::string& path) {
+//    if (path[0] == '~') {
+//        const char* home = getenv("HOME") ? getenv("HOME") : getpwuid(getuid())->pw_dir;
+//        return std::string(home) + path.substr(1);
+//    }
+//    return path;
+//}
+//#endif
+
+#if defined(__APPLE__)
 std::string ExpandTilde(const std::string& path) {
     if (path[0] == '~') {
-        const char* home = getenv("HOME") ? getenv("HOME") : getpwuid(getuid())->pw_dir;
+        // Get the home directory path
+        const char* home = getenv("HOME");
+        if (home == NULL) {
+            home = getpwuid(getuid())->pw_dir;
+        }
+        // Replace "~" with the home directory
         return std::string(home) + path.substr(1);
     }
-    return path;
+    return path;  // Return the original path if it doesn't start with "~"
 }
 #endif
 
