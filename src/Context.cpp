@@ -7,9 +7,6 @@
 #include "install_config.h"
 #include "graphic/Fast3D/debug/GfxDebugger.h"
 #include "graphic/Fast3D/Fast3dWindow.h"
-#include <unistd.h>
-#include <pwd.h>
-#include <string>
 
 #ifdef _WIN32
 #include <tchar.h>
@@ -17,6 +14,9 @@
 
 #ifdef __APPLE__
 #include "utils/AppleFolderManager.h"
+#include <unistd.h>
+#include <pwd.h>
+#include <string>
 #endif
 
 namespace Ship {
