@@ -386,7 +386,7 @@ std::string Context::GetAppDirectoryPath(std::string appName) {
     return std::string(home) + "/Documents";
 #endif
 
-##if defined(__APPLE__)
+#if defined(__APPLE__)
     char* fpath = std::getenv("SHIP_HOME");
     if (fpath != NULL) {
         std::string expandedPath = ExpandTilde(std::string(fpath));
