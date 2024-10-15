@@ -389,6 +389,15 @@ std::string Context::GetAppDirectoryPath(std::string appName) {
     char* fpath = std::getenv("SHIP_HOME");
     if (fpath != NULL) {
         std::string expandedPath = ExpandTilde(std::string(fpath));
+        
+        // Check if the directory exists and create it if not
+        if (!std::filesystem::exists(expandedPath)) {
+            if (std::filesystem::create_directory(expandedPath)) {
+                std::cout << "Directory created successfully at: " << expandedPath << std::endl;
+            } else {
+                std::cerr << "Failed to create directory at: " << expandedPath << std::endl;
+            }
+        }
         return expandedPath;
     }
 #endif
