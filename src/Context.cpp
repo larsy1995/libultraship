@@ -384,48 +384,20 @@ std::string Context::GetAppDirectoryPath(std::string appName) {
 #endif
 
 #if defined(__APPLE__)
-    char* fpath = std::getenv("SHIP_HOME");
-    if (fpath != NULL) {
-        std::string expandedPath = ExpandTilde(std::string(fpath));
-
-        // Ensure the SHIP_HOME directory exists
-        if (!std::filesystem::exists(expandedPath)) {
-            if (std::filesystem::create_directory(expandedPath)) {
-                std::cout << "Directory created successfully at: " << expandedPath << std::endl;
-            } else {
-                std::cerr << "Failed to create directory at: " << expandedPath << std::endl;
-            }
-        }
-
-        // Create the "mods" subdirectory
-        std::string modsPath = expandedPath + "/mods";
-        if (!std::filesystem::exists(modsPath)) {
-            if (std::filesystem::create_directory(modsPath)) {
-                std::cout << "Mods directory created successfully at: " << modsPath << std::endl;
-            } else {
-                std::cerr << "Failed to create mods directory at: " << modsPath << std::endl;
-            }
-        }
-
-        // Check if the text file exists, only create it if it doesn't
+    if (char* fpath = std::getenv("SHIP_HOME")) {
+        std::string modsPath = ExpandTilde(fpath) + "/mods";
         std::string filePath = modsPath + "/example.txt";
-        if (!std::filesystem::exists(filePath)) {
-            std::ofstream outFile(filePath);
-            if (outFile.is_open()) {
-                // No need to write anything, just create the file and close it
-                outFile.close();
-                std::cout << "Empty text file created successfully at: " << filePath << std::endl;
-            } else {
-                std::cerr << "Failed to create text file at: " << filePath << std::endl;
-            }
-        } else {
-            std::cout << "Text file already exists at: " << filePath << std::endl;
-        }
 
-        return expandedPath;
+        // Ensure SHIP_HOME and "mods" directory exist
+        std::filesystem::create_directories(modsPath);
+
+        // Only create the text file if it doesn't already exist
+        if (!std::filesystem::exists(filePath)) {
+            std::ofstream(filePath).close();
+            std::cout << "Text file created at: " << filePath << std::endl;
+        }
     }
 #endif
-  
     
 #if defined(__linux__)
     char* fpath = std::getenv("SHIP_HOME");
