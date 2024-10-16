@@ -89,7 +89,6 @@ void Context::Init(const std::vector<std::string>& otrFiles, const std::unordere
     InitWindow();
     InitAudio(audioSettings);
     InitGfxDebugger();
-    InitCheckAndCreateFoldersAndFile();
 }
 
 void Context::InitLogging() {
@@ -329,26 +328,6 @@ std::string ExpandTilde(const std::string& path) {
 }
 #endif
 
-#if defined(__APPLE__)
-void InitCheckAndCreateFoldersAndFile() {
-    if (char* fpath = std::getenv("SHIP_HOME")) {
-        std::string modsPath = ExpandTilde(fpath) + "/mods";
-        std::string filePath = modsPath + "/custom_mod_files_go_here.txt";
-
-        // Create SHIP_HOME and mods directory if they don't exist
-        std::filesystem::create_directories(modsPath);
-
-        // Create the text file if it doesn't exist
-        if (!std::filesystem::exists(filePath)) {
-            std::ofstream(filePath).close();
-            std::cout << "Text file created at: " << filePath << std::endl;
-        } else {
-            std::cout << "Text file already exists at: " << filePath << std::endl;
-        }
-    }
-}
-
-#endif
 std::string Context::GetAppBundlePath() {
 #if defined(__ANDROID__)
     const char* externaldir = SDL_AndroidGetExternalStoragePath();
