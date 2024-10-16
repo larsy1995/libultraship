@@ -89,6 +89,7 @@ void Context::Init(const std::vector<std::string>& otrFiles, const std::unordere
     InitWindow();
     InitAudio(audioSettings);
     InitGfxDebugger();
+    InitCheckAndCreateFoldersAndFile();
 }
 
 void Context::InitLogging() {
@@ -329,7 +330,7 @@ std::string ExpandTilde(const std::string& path) {
 #endif
 
 #if defined(__APPLE__)
-void CheckAndCreateFoldersAndFile() {
+void InitCheckAndCreateFoldersAndFile() {
     if (char* fpath = std::getenv("SHIP_HOME")) {
         std::string modsPath = ExpandTilde(fpath) + "/mods";
         std::string filePath = modsPath + "/custom_mod_files_go_here.txt";
