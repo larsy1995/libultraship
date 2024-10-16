@@ -7,7 +7,6 @@
 #include "install_config.h"
 #include "graphic/Fast3D/debug/GfxDebugger.h"
 #include "graphic/Fast3D/Fast3dWindow.h"
-#include <fstream>
 
 #ifdef _WIN32
 #include <tchar.h>
@@ -317,17 +316,7 @@ std::string Context::GetShortName() {
     return mShortName;
 }
 
-#if defined(__APPLE__)
-//Expanded tilde function to get the full path to the application user directory
-std::string ExpandTilde(const std::string& path) {
-    if (path[0] == '~') {
-        const char* home = getenv("HOME") ? getenv("HOME") : getpwuid(getuid())->pw_dir;
-        return std::string(home) + path.substr(1);
-    }
-    return path;
-}
 #endif
-
 std::string Context::GetAppBundlePath() {
 #if defined(__ANDROID__)
     const char* externaldir = SDL_AndroidGetExternalStoragePath();
@@ -384,7 +373,11 @@ std::string Context::GetAppDirectoryPath(std::string appName) {
 
 #if defined(__APPLE__)
     if (char* fpath = std::getenv("SHIP_HOME")) {
-        return ExpandTilde(fpath); 
+        if (fpath[0] == '~') {
+            const char* home = getenv("HOME") ? getenv("HOME") : getpwuid(getuid())->pw_dir;
+            return std::string(home) + std::string(fpath).substr(1);
+        }
+        return std::string(fpath);
     }
 #endif
     
