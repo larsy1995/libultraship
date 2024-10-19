@@ -600,7 +600,7 @@ static const char* gfx_sdl_get_key_name(int scancode) {
 }
 
 bool gfx_sdl_can_disable_vsync() {
-    return false;
+    return true;
 }
 
 bool gfx_sdl_is_running(void) {
