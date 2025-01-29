@@ -43,7 +43,7 @@ static SDL_Window* wnd;
 static SDL_GLContext ctx;
 static SDL_Renderer* renderer;
 static int sdl_to_lus_table[512];
-static bool vsync_enabled = false;
+static bool vsync_enabled = true;
 static float mouse_wheel_x = 0.0f;
 static float mouse_wheel_y = 0.0f;
 // OTRTODO: These are redundant. Info can be queried from SDL.
@@ -632,11 +632,10 @@ static inline void sync_framerate_with_timer() {
 #endif
     }
 
+#ifdef _WIN32
     t = qpc_to_100ns(SDL_GetPerformanceCounter());
     while (t < next) {
-#ifdef _WIN32
         YieldProcessor(); // TODO: Find a way for other compilers, OSes and architectures
-#endif
         t = qpc_to_100ns(SDL_GetPerformanceCounter());
     }
 #endif
