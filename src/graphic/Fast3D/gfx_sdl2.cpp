@@ -632,10 +632,11 @@ static inline void sync_framerate_with_timer() {
 #endif
     }
 
-#ifdef _WIN32
     t = qpc_to_100ns(SDL_GetPerformanceCounter());
     while (t < next) {
+#ifdef _WIN32
         YieldProcessor(); // TODO: Find a way for other compilers, OSes and architectures
+#endif
         t = qpc_to_100ns(SDL_GetPerformanceCounter());
     }
 #endif
