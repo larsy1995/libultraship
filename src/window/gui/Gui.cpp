@@ -43,7 +43,7 @@
 #endif
 
 #if defined(ENABLE_DX11) || defined(ENABLE_DX12)
-#include <graphic/Fast3D/gfx_direct3d11.h>
+ #include <graphic/Fast3D/gfx_direct3d11.h>
 #include <imgui_impl_dx11.h>
 #include <imgui_impl_win32.h>
 
@@ -552,7 +552,15 @@ void Gui::EndFrame() {
     ImGuiRenderDrawData(ImGui::GetDrawData());
     ImGui::EndFrame();
 }
-
+    static int retina_factor(uint32_t width, uint32_t height) {
+    int pixel_width= static_cast<int>(width);
+    int pixel_height= static_cast<int>(height);
+    if (pixel_width/gfx_current_dimensions.width > 1 && pixel_height/gfx_current_dimensions.height > 1) {
+        return static_cast<int>(pixel_width/gfx_current_dimensions.width);
+    } else {
+        return 1;
+    }
+}
 void Gui::CalculateGameViewport() {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
@@ -569,9 +577,11 @@ void Gui::CalculateGameViewport() {
     mainPos.x -= mTemporaryWindowPos.x;
     mainPos.y -= mTemporaryWindowPos.y;
     ImVec2 size = ImGui::GetContentRegionAvail();
+
 #ifdef __APPLE__
-    gfx_current_dimensions.width = (uint32_t)(size.x*2 * gfx_current_dimensions.internal_mul);
-    gfx_current_dimensions.height = (uint32_t)(size.y*2 * gfx_current_dimensions.internal_mul);
+    int factor = retina_factor(gfx_current_dimensions.width, gfx_current_dimensions.height);
+    gfx_current_game_window_viewport.width = (int16_t)(size.x*factor);
+    gfx_current_game_window_viewport.height = (int16_t)(size.y*factor);
 #else
     gfx_current_dimensions.width = (uint32_t)(size.x * gfx_current_dimensions.internal_mul);
     gfx_current_dimensions.height = (uint32_t)(size.y * gfx_current_dimensions.internal_mul);
