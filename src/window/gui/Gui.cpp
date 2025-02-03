@@ -580,7 +580,6 @@ void Gui::CalculateGameViewport() {
     gfx_current_game_window_viewport.y = (int16_t)mainPos.y;
     gfx_current_game_window_viewport.width = (int16_t)size.x;
     gfx_current_game_window_viewport.height = (int16_t)size.y;
-#endif
 
     if (CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled", 0)) {
         ApplyResolutionChanges();
