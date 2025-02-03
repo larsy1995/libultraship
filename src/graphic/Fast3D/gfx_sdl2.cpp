@@ -659,7 +659,7 @@ static inline void sync_framerate_with_timer() {
     int logical_height = static_cast<int>(height);
     int pixel_width, pixel_height;
     SDL_GL_GetDrawableSize(wnd, &pixel_width, &pixel_height);
-    if (logical_width / pixel_width > 1 && logical_height / pixel_height > 1) {
+    if (pixel_width / logical_width > 1 && pixel_height / logical_height > 1) {
         return static_cast<int>(pixel_width / logical_width);
     } else {
         return 1;

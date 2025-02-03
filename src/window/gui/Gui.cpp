@@ -572,8 +572,8 @@ void Gui::CalculateGameViewport() {
 
 #ifdef __APPLE__
     int factor = retina_factor(gfx_current_dimensions.width, gfx_current_dimensions.height);
-    gfx_current_game_window_viewport.width = (int16_t)(size.x*factor);
-    gfx_current_game_window_viewport.height = (int16_t)(size.y*factor);
+    gfx_current_game_window_viewport.width = (int16_t)(size.x*2);
+    gfx_current_game_window_viewport.height = (int16_t)(size.y*2);
 #else
     gfx_current_dimensions.width = (uint32_t)(size.x * gfx_current_dimensions.internal_mul);
     gfx_current_dimensions.height = (uint32_t)(size.y * gfx_current_dimensions.internal_mul);
