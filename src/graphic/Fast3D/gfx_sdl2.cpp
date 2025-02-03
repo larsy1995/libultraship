@@ -385,22 +385,20 @@ static void gfx_sdl_init(const char* game_name, const char* gfx_api_name, bool s
         posX = 100;
         posY = 100;
     }
-    int drawable_width, drawable_height;
-    float scale_factor = 1.0f;
 
+    SDL_GetWindowSize(wnd, &window_width, &window_height);
+    int drawable_width, drawable_height;
     if (use_opengl) {
         SDL_GL_GetDrawableSize(wnd, &drawable_width, &drawable_height);
     } else {
         SDL_GetRendererOutputSize(renderer, &drawable_width, &drawable_height);
     }
+    float scale_factor = (float)drawable_width / (float)window_width;
 
-    SDL_GetWindowSize(wnd, &window_width, &window_height);
-    scale_factor = (float)drawable_width / (float)window_width;
-
-    // Apply scale correction
     window_width = drawable_width / scale_factor;
     window_height = drawable_height / scale_factor;
     SDL_SetWindowSize(wnd, window_width, window_height);
+
     if (use_opengl) {
         if (start_in_fullscreen) {
             set_fullscreen(true, false);
