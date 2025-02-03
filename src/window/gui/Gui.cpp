@@ -17,7 +17,6 @@
 #include "window/gui/Fonts.h"
 #include "window/gui/resource/GuiTextureFactory.h"
 #include "graphic/Fast3D/gfx_rendering_api.h"
-#include "graphic/Fast3D/gfx_pc.h"
 #include "window/gui/GfxDebuggerWindow.h"
 
 #ifdef __APPLE__
@@ -571,7 +570,6 @@ void Gui::CalculateGameViewport() {
     ImVec2 size = ImGui::GetContentRegionAvail();
 
 #ifdef __APPLE__
-    int factor = retina_factor(gfx_current_dimensions.width, gfx_current_dimensions.height);
     gfx_current_game_window_viewport.width = (int16_t)(size.x*2);
     gfx_current_game_window_viewport.height = (int16_t)(size.y*2);
 #else
