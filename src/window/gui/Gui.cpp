@@ -569,12 +569,18 @@ void Gui::CalculateGameViewport() {
     mainPos.x -= mTemporaryWindowPos.x;
     mainPos.y -= mTemporaryWindowPos.y;
     ImVec2 size = ImGui::GetContentRegionAvail();
+
     gfx_current_dimensions.width = (uint32_t)(size.x * gfx_current_dimensions.internal_mul);
     gfx_current_dimensions.height = (uint32_t)(size.y * gfx_current_dimensions.internal_mul);
     gfx_current_game_window_viewport.x = (int16_t)mainPos.x;
     gfx_current_game_window_viewport.y = (int16_t)mainPos.y;
+#ifdef __APPLE__
+    gfx_current_game_window_viewport.width = (int16_t)(size.x*2);
+    gfx_current_game_window_viewport.height = (int16_t)(size.y*2);
+#else
     gfx_current_game_window_viewport.width = (int16_t)size.x;
     gfx_current_game_window_viewport.height = (int16_t)size.y;
+#endif
 
     if (CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled", 0)) {
         ApplyResolutionChanges();
