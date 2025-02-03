@@ -387,9 +387,8 @@ static void gfx_sdl_init(const char* game_name, const char* gfx_api_name, bool s
         posX = 100;
         posY = 100;
     }
-
-    SDL_GetWindowSize(wnd, &window_width, &window_height);
     int drawable_width, drawable_height;
+    SDL_GetWindowSize(wnd, &window_width, &window_height);
     if (use_opengl) {
         SDL_GL_GetDrawableSize(wnd, &drawable_width, &drawable_height);
     } else {
@@ -503,8 +502,8 @@ static void gfx_sdl_set_mouse_callbacks(bool (*on_btn_down)(int btn), bool (*on_
 }
 
 static void gfx_sdl_get_dimensions(uint32_t* width, uint32_t* height, int32_t* posX, int32_t* posY) {
-    SDL_GL_GetDrawableSize(wnd, static_cast<int*>((void*)width), static_cast<int*>((void*)height));
-    SDL_GetWindowPosition(wnd, static_cast<int*>(posX), static_cast<int*>(posY));
+    SDL_GetWindowSize(wnd, reinterpret_cast<int*>(width), reinterpret_cast<int*>(height));
+    SDL_GetWindowPosition(wnd, reinterpret_cast<int*>(posX), reinterpret_cast<int*>(posY));
 }
 
 static int translate_scancode(int scancode) {
@@ -580,7 +579,7 @@ static void gfx_sdl_handle_single_event(SDL_Event& event) {
         case SDL_WINDOWEVENT:
             switch (event.window.event) {
                 case SDL_WINDOWEVENT_SIZE_CHANGED:
-                    SDL_GL_GetDrawableSize(wnd, &window_width, &window_height);
+                    SDL_GetWindowSize(wnd, &window_width, &window_height);
                     break;
                 case SDL_WINDOWEVENT_CLOSE:
                     if (event.window.windowID == SDL_GetWindowID(wnd)) {
