@@ -42,6 +42,9 @@
 static SDL_Window* wnd;
 static SDL_GLContext ctx;
 static SDL_Renderer* renderer;
+// Global flag so that later code can tell which backend is in use
+static bool use_opengl_flag = false;  // MODIFIED: Added global flag
+
 static int sdl_to_lus_table[512];
 static bool vsync_enabled = true;
 static float mouse_wheel_x = 0.0f;
@@ -79,7 +82,6 @@ const SDL_Scancode lus_to_sdl_table[] = {
     SDL_SCANCODE_EQUALS,
     SDL_SCANCODE_BACKSPACE,
     SDL_SCANCODE_TAB, /* 0 */
-
     SDL_SCANCODE_Q,
     SDL_SCANCODE_W,
     SDL_SCANCODE_E,
@@ -96,7 +98,6 @@ const SDL_Scancode lus_to_sdl_table[] = {
     SDL_SCANCODE_LCTRL,
     SDL_SCANCODE_A,
     SDL_SCANCODE_S, /* 1 */
-
     SDL_SCANCODE_D,
     SDL_SCANCODE_F,
     SDL_SCANCODE_G,
@@ -113,7 +114,6 @@ const SDL_Scancode lus_to_sdl_table[] = {
     SDL_SCANCODE_X,
     SDL_SCANCODE_C,
     SDL_SCANCODE_V, /* 2 */
-
     SDL_SCANCODE_B,
     SDL_SCANCODE_N,
     SDL_SCANCODE_M,
@@ -130,7 +130,6 @@ const SDL_Scancode lus_to_sdl_table[] = {
     SDL_SCANCODE_F3,
     SDL_SCANCODE_F4,
     SDL_SCANCODE_F5, /* 3 */
-
     SDL_SCANCODE_F6,
     SDL_SCANCODE_F7,
     SDL_SCANCODE_F8,
@@ -147,7 +146,6 @@ const SDL_Scancode lus_to_sdl_table[] = {
     SDL_SCANCODE_RIGHT,
     SDL_SCANCODE_KP_PLUS,
     SDL_SCANCODE_END, /* 4 */
-
     SDL_SCANCODE_DOWN,
     SDL_SCANCODE_PAGEDOWN,
     SDL_SCANCODE_INSERT,
@@ -164,7 +162,6 @@ const SDL_Scancode lus_to_sdl_table[] = {
     SDL_SCANCODE_APPLICATION,
     SDL_SCANCODE_UNKNOWN,
     SDL_SCANCODE_UNKNOWN, /* 5 */
-
     SDL_SCANCODE_UNKNOWN,
     SDL_SCANCODE_UNKNOWN,
     SDL_SCANCODE_UNKNOWN,
@@ -181,7 +178,6 @@ const SDL_Scancode lus_to_sdl_table[] = {
     SDL_SCANCODE_UNKNOWN,
     SDL_SCANCODE_UNKNOWN,
     SDL_SCANCODE_UNKNOWN, /* 6 */
-
     SDL_SCANCODE_INTERNATIONAL2,
     SDL_SCANCODE_UNKNOWN,
     SDL_SCANCODE_UNKNOWN,
@@ -330,6 +326,7 @@ static void gfx_sdl_init(const char* game_name, const char* gfx_api_name, bool s
 #else
     bool use_opengl = true;
 #endif
+    use_opengl_flag = use_opengl; // MODIFIED: Save backend flag
 
     if (use_opengl) {
         SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
@@ -387,6 +384,10 @@ static void gfx_sdl_init(const char* game_name, const char* gfx_api_name, bool s
         posX = 100;
         posY = 100;
     }
+    // --- RETINA/High-DPI NOTE ---
+    // Rather than adjusting the window size immediately based on the drawable size,
+    // it’s better to preserve the logical size here. Later, when setting up your viewport
+    // (or projection matrix), query the physical size using SDL_GL_GetDrawableSize (or SDL_GetRendererOutputSize).
     int drawable_width, drawable_height;
     SDL_GetWindowSize(wnd, &window_width, &window_height);
     if (use_opengl) {
@@ -394,22 +395,21 @@ static void gfx_sdl_init(const char* game_name, const char* gfx_api_name, bool s
     } else {
         SDL_GetRendererOutputSize(renderer, &drawable_width, &drawable_height);
     }
+    // You might remove or comment out the following block so that you keep your original logical size:
+    /*
     float scale_factor = (float)drawable_width / (float)window_width;
-
     window_width = drawable_width / scale_factor;
     window_height = drawable_height / scale_factor;
     SDL_SetWindowSize(wnd, window_width, window_height);
+    */
 
     if (use_opengl) {
         if (start_in_fullscreen) {
             set_fullscreen(true, false);
         }
-
         ctx = SDL_GL_CreateContext(wnd);
-
         SDL_GL_MakeCurrent(wnd, ctx);
         SDL_GL_SetSwapInterval(vsync_enabled ? 1 : 0);
-
         window_impl.Opengl = { wnd, ctx };
     } else {
         uint32_t flags = SDL_RENDERER_ACCELERATED;
@@ -421,7 +421,6 @@ static void gfx_sdl_init(const char* game_name, const char* gfx_api_name, bool s
             SPDLOG_ERROR("Error creating renderer: {}", SDL_GetError());
             return;
         }
-
         SDL_GetRendererOutputSize(renderer, &window_width, &window_height);
         window_impl.Metal = { wnd, renderer };
     }
@@ -501,8 +500,13 @@ static void gfx_sdl_set_mouse_callbacks(bool (*on_btn_down)(int btn), bool (*on_
     on_mouse_button_up_callback = on_btn_up;
 }
 
+// MODIFIED: Now we choose which function to use for dimensions based on the backend.
 static void gfx_sdl_get_dimensions(uint32_t* width, uint32_t* height, int32_t* posX, int32_t* posY) {
-    SDL_GetWindowSize(wnd, reinterpret_cast<int*>(width), reinterpret_cast<int*>(height));
+    if (use_opengl_flag) {
+        SDL_GL_GetDrawableSize(wnd, reinterpret_cast<int*>(width), reinterpret_cast<int*>(height));
+    } else {
+        SDL_GetRendererOutputSize(renderer, reinterpret_cast<int*>(width), reinterpret_cast<int*>(height));
+    }
     SDL_GetWindowPosition(wnd, reinterpret_cast<int*>(posX), reinterpret_cast<int*>(posY));
 }
 
@@ -579,7 +583,11 @@ static void gfx_sdl_handle_single_event(SDL_Event& event) {
         case SDL_WINDOWEVENT:
             switch (event.window.event) {
                 case SDL_WINDOWEVENT_SIZE_CHANGED:
-                    SDL_GetWindowSize(wnd, &window_width, &window_height);
+                    // MODIFIED: Use the proper query function based on backend
+                    if (use_opengl_flag)
+                        SDL_GL_GetDrawableSize(wnd, &window_width, &window_height);
+                    else
+                        SDL_GetRendererOutputSize(renderer, &window_width, &window_height);
                     break;
                 case SDL_WINDOWEVENT_CLOSE:
                     if (event.window.windowID == SDL_GetWindowID(wnd)) {
@@ -649,7 +657,7 @@ static inline void sync_framerate_with_timer() {
 #ifdef _WIN32
         YieldProcessor();
 #elif defined(__APPLE__)
-		sched_yield(); // TODO do this for Linux and other OSes and Architectures
+        sched_yield(); // TODO do this for Linux and other OSes and Architectures
 #endif
         t = qpc_to_100ns(SDL_GetPerformanceCounter());
     }
