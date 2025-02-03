@@ -502,7 +502,7 @@ static void gfx_sdl_set_mouse_callbacks(bool (*on_btn_down)(int btn), bool (*on_
 }
 
 static void gfx_sdl_get_dimensions(uint32_t* width, uint32_t* height, int32_t* posX, int32_t* posY) {
-    SDL_GetWindowSize(wnd, reinterpret_cast<int*>(width), reinterpret_cast<int*>(height));
+    SDL_GetRendererOutputSize(renderer, reinterpret_cast<int*>(width), reinterpret_cast<int*>(height));
     SDL_GetWindowPosition(wnd, reinterpret_cast<int*>(posX), reinterpret_cast<int*>(posY));
 }
 
