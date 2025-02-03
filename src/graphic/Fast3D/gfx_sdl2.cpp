@@ -369,7 +369,13 @@ static void gfx_sdl_init(const char* game_name, const char* gfx_api_name, bool s
     }
 
     wnd = SDL_CreateWindow(title, posX, posY, window_width, window_height, flags);
+    int actual_w, actual_h;
+    SDL_GetRendererOutputSize(renderer, &actual_w, &actual_h);
 
+    // If the window size is larger than expected, adjust it
+    if (actual_w > window_width * 1.5 || actual_h > window_height * 1.5) {
+        SDL_SetWindowSize(wnd, window_width, window_height);
+    }
 #ifdef _WIN32
     // Get Windows window handle and use it to subclass the window procedure.
     // Needed to circumvent SDLs DPI scaling problems under windows (original does only scale *sometimes*).
