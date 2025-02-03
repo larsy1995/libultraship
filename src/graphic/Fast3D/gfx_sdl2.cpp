@@ -316,6 +316,8 @@ static void gfx_sdl_init(const char* game_name, const char* gfx_api_name, bool s
 
 #if SDL_VERSION_ATLEAST(2, 24, 0)
     /* fix DPI scaling issues on Windows */
+    SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0"); // Enable High-DPI Awareness
+    SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING, "1");
     SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
 #endif
 
