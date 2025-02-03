@@ -654,17 +654,16 @@ static inline void sync_framerate_with_timer() {
     }
     previous_time = t;
 }
-    int retina_factor(uint32_t width, uint32_t height) {
-    int pixel_width= static_cast<int>(width);
-    int pixel_height= static_cast<int>(height);
-    SDL_GL_GetDrawableSize(wnd, &pixel_width, &pixel_height);
-    if (pixel_width/gfx_current_dimensions.width > 1 && pixel_height/gfx_current_dimensions.height > 1) {
-        return static_cast<int>(pixel_width/gfx_current_dimensions.width);
-    } else {
-        return 1;
-    }
-}
+int retina_factor() {
+    int pixelWidth = 0, pixelHeight = 0;
+    SDL_GL_GetDrawableSize(wnd, &pixelWidth, &pixelHeight);
 
+    int factor = pixelWidth / gfx_current_dimensions.width;
+    if (factor > 1 && (pixelHeight / gfx_current_dimensions.height) > 1) {
+        return factor;
+    }
+    return 1;
+}
 static void gfx_sdl_swap_buffers_begin() {
     sync_framerate_with_timer();
     SDL_GL_SwapWindow(wnd);
