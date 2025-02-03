@@ -316,8 +316,6 @@ static void gfx_sdl_init(const char* game_name, const char* gfx_api_name, bool s
 
 #if SDL_VERSION_ATLEAST(2, 24, 0)
     /* fix DPI scaling issues on Windows */
-    SDL_SetHint(SDL_HINT_VIDEO_HIGHDPI_DISABLED, "0"); // Enable High-DPI Awareness
-    SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING, "1");
     SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
 #endif
 
@@ -387,20 +385,10 @@ static void gfx_sdl_init(const char* game_name, const char* gfx_api_name, bool s
         posX = 100;
         posY = 100;
     }
-    int drawable_width, drawable_height;
-    SDL_GetWindowSize(wnd, &window_width, &window_height);
-    if (use_opengl) {
-        SDL_GL_GetDrawableSize(wnd, &drawable_width, &drawable_height);
-    } else {
-        SDL_GetRendererOutputSize(renderer, &drawable_width, &drawable_height);
-    }
-    float scale_factor = (float)drawable_width / (float)window_width;
-
-    window_width = drawable_width / scale_factor;
-    window_height = drawable_height / scale_factor;
-    SDL_SetWindowSize(wnd, window_width, window_height);
 
     if (use_opengl) {
+        SDL_GL_GetDrawableSize(wnd, &window_width, &window_height);
+
         if (start_in_fullscreen) {
             set_fullscreen(true, false);
         }
@@ -502,8 +490,8 @@ static void gfx_sdl_set_mouse_callbacks(bool (*on_btn_down)(int btn), bool (*on_
 }
 
 static void gfx_sdl_get_dimensions(uint32_t* width, uint32_t* height, int32_t* posX, int32_t* posY) {
-    SDL_GetRendererOutputSize(renderer, reinterpret_cast<int*>(width), reinterpret_cast<int*>(height));
-    SDL_GetWindowPosition(wnd, reinterpret_cast<int*>(posX), reinterpret_cast<int*>(posY));
+    SDL_GL_GetDrawableSize(wnd, static_cast<int*>((void*)width), static_cast<int*>((void*)height));
+    SDL_GetWindowPosition(wnd, static_cast<int*>(posX), static_cast<int*>(posY));
 }
 
 static int translate_scancode(int scancode) {
@@ -579,7 +567,7 @@ static void gfx_sdl_handle_single_event(SDL_Event& event) {
         case SDL_WINDOWEVENT:
             switch (event.window.event) {
                 case SDL_WINDOWEVENT_SIZE_CHANGED:
-                    SDL_GetRendererOutputSize(renderer, &window_width, &window_height);
+                    SDL_GetWindowSize(wnd, &window_width, &window_height);
                     break;
                 case SDL_WINDOWEVENT_CLOSE:
                     if (event.window.windowID == SDL_GetWindowID(wnd)) {
@@ -627,8 +615,8 @@ static inline void sync_framerate_with_timer() {
 
     const int64_t next = previous_time + 10 * FRAME_INTERVAL_US_NUMERATOR / FRAME_INTERVAL_US_DENOMINATOR;
     int64_t left = next - t;
-    // We want to exit a bit early, so we can busy-wait the rest to never miss the deadline
 #if defined(_WIN32) || defined(__APPLE__)
+    // We want to exit a bit early, so we can busy-wait the rest to never miss the deadline
     left -= 15000UL;
 #endif
     if (left > 0) {
@@ -643,13 +631,14 @@ static inline void sync_framerate_with_timer() {
         WaitForSingleObject(timer, INFINITE);
 #endif
     }
+
 #if defined(_WIN32) || defined(__APPLE__)
     t = qpc_to_100ns(SDL_GetPerformanceCounter());
     while (t < next) {
 #ifdef _WIN32
         YieldProcessor();
 #elif defined(__APPLE__)
-		sched_yield(); // TODO do this for Linux and other OSes and Architectures
+        sched_yield();
 #endif
         t = qpc_to_100ns(SDL_GetPerformanceCounter());
     }
