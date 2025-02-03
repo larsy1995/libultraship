@@ -17,7 +17,7 @@
 #include "window/gui/Fonts.h"
 #include "window/gui/resource/GuiTextureFactory.h"
 #include "graphic/Fast3D/gfx_rendering_api.h"
-
+#include "graphic/Fast3D/gfx_pc.h"
 #include "window/gui/GfxDebuggerWindow.h"
 
 #ifdef __APPLE__
@@ -552,15 +552,7 @@ void Gui::EndFrame() {
     ImGuiRenderDrawData(ImGui::GetDrawData());
     ImGui::EndFrame();
 }
-    static int retina_factor(uint32_t width, uint32_t height) {
-    int pixel_width= static_cast<int>(width);
-    int pixel_height= static_cast<int>(height);
-    if (pixel_width/gfx_current_dimensions.width > 1 && pixel_height/gfx_current_dimensions.height > 1) {
-        return static_cast<int>(pixel_width/gfx_current_dimensions.width);
-    } else {
-        return 1;
-    }
-}
+
 void Gui::CalculateGameViewport() {
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0, 0));
     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);

@@ -1,5 +1,7 @@
 #include <stdio.h>
 
+#include "gfx_pc.h"
+
 #if defined(ENABLE_OPENGL) || defined(__APPLE__)
 
 #ifdef __MINGW32__
@@ -652,7 +654,16 @@ static inline void sync_framerate_with_timer() {
     }
     previous_time = t;
 }
-
+    int retina_factor(uint32_t width, uint32_t height) {
+    int pixel_width= static_cast<int>(width);
+    int pixel_height= static_cast<int>(height);
+    SDL_GL_GetDrawableSize(wnd, &pixel_width, &pixel_height);
+    if (pixel_width/gfx_current_dimensions.width > 1 && pixel_height/gfx_current_dimensions.height > 1) {
+        return static_cast<int>(pixel_width/gfx_current_dimensions.width);
+    } else {
+        return 1;
+    }
+}
 static void gfx_sdl_swap_buffers_begin() {
     sync_framerate_with_timer();
     SDL_GL_SwapWindow(wnd);
