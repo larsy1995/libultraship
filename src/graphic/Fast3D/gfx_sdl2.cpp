@@ -387,7 +387,7 @@ static void gfx_sdl_init(const char* game_name, const char* gfx_api_name, bool s
     }
 
     if (use_opengl) {
-        SDL_GL_GetDrawableSize(wnd, &window_width, &window_height);
+            SDL_GL_GetDrawableSize(wnd, &window_width, &window_height);
 
         if (start_in_fullscreen) {
             set_fullscreen(true, false);
@@ -567,7 +567,7 @@ static void gfx_sdl_handle_single_event(SDL_Event& event) {
         case SDL_WINDOWEVENT:
             switch (event.window.event) {
                 case SDL_WINDOWEVENT_SIZE_CHANGED:
-                    SDL_GL_GetDrawableSize(wnd, &window_width, &window_height);
+                    SDL_GetWindowSize(wnd, &window_width, &window_height);
                     break;
                 case SDL_WINDOWEVENT_CLOSE:
                     if (event.window.windowID == SDL_GetWindowID(wnd)) {
