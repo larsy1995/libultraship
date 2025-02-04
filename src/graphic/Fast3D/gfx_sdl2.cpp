@@ -664,7 +664,7 @@ static inline void sync_framerate_with_timer() {
 }
 int retina_factor() {
     int pixelWidth = 0, pixelHeight = 0;
-    SDL_GetRendererOutputSize(renderer, &pixelWidth, &pixelHeight);
+    SDL_GL_GetDrawableSize(wnd, &pixelWidth, &pixelHeight);
     float logicalWidth = ImGui::GetContentRegionAvail().x;
     float logicalHeight = ImGui::GetContentRegionAvail().y;
     int factorW = pixelWidth / (int)logicalWidth;
