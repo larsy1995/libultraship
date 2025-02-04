@@ -656,10 +656,11 @@ void Gui::DrawGame() {
         } else { // in pixel perfect mode it's much easier
             int scalingFactor = retina_factor();
             const int factor = GetIntegerScaleFactor();
-            float sPosX = floor((size.x*scalingFactor) / 2.0f - (gfx_current_dimensions.width * factor) / 2.0f);
-            float sPosY = floor((size.y*scalingFactor) / 2.0f - (gfx_current_dimensions.height * factor) / 2.0f);
+            const int appleScale = scalingFactor*factor;
+            float sPosX = floor(size.x / 2.0f - (gfx_current_dimensions.width * appleScale) / 2.0f);
+            float sPosY = floor(size.y*scalingFactor / 2.0f - (gfx_current_dimensions.height * appleScale) / 2.0f);
             pos = ImVec2(sPosX, sPosY);
-            size = ImVec2(float(gfx_current_dimensions.width) * factor, float(gfx_current_dimensions.height) * factor);
+            size = ImVec2(float(gfx_current_dimensions.width) * appleScale, float(gfx_current_dimensions.height) * appleScale);
         }
     }
     if (gfxFramebuffer) {
