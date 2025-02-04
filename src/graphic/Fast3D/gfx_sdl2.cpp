@@ -665,12 +665,12 @@ static inline void sync_framerate_with_timer() {
 int retina_factor() {
     int pixelWidth = 0, pixelHeight = 0;
     SDL_GL_GetDrawableSize(wnd, &pixelWidth, &pixelHeight);
-
-    int factor = pixelWidth / gfx_current_dimensions.width;
-    if (factor > 1 && (pixelHeight / gfx_current_dimensions.height) > 1) {
-        return factor;
-    }
-    return 1;
+    float logicalWidth = ImGui::GetContentRegionAvail().x;
+    float logicalHeight = ImGui::GetContentRegionAvail().y;
+    int factorW = pixelWidth / (int)logicalWidth;
+    int factorH = pixelHeight / (int)logicalHeight;
+    int factor = std::min(factorW, factorH);
+    return (factor > 1) ? factor : 1;
 }
 static void gfx_sdl_swap_buffers_begin() {
     sync_framerate_with_timer();
