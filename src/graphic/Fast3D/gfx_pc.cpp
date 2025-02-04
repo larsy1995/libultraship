@@ -4157,10 +4157,14 @@ void gfx_start_frame() {
 
     gfx_prev_dimensions = gfx_current_dimensions;
     gfx_prev_native_dimensions = gfx_native_dimensions;
-
+#ifdef __APPLE__
+    bool is_apple = true;
+#else
+    bool   is_apple=false;
+#endif
     bool different_size = gfx_current_dimensions.width != gfx_current_game_window_viewport.width ||
                           gfx_current_dimensions.height != gfx_current_game_window_viewport.height;
-    if (different_size || gfx_msaa_level > 1) {
+    if (is_apple || different_size || gfx_msaa_level > 1) {
         game_renders_to_framebuffer = true;
         if (different_size) {
             gfx_rapi->update_framebuffer_parameters(game_framebuffer, gfx_current_dimensions.width,
@@ -4347,13 +4351,13 @@ void gfx_reset_framebuffer() {
 static void adjust_pixel_depth_coordinates(float& x, float& y) {
     x = x * RATIO_X - (gfx_native_dimensions.width * RATIO_X - gfx_current_dimensions.width) / 2;
     y *= RATIO_Y;
- //   if (!game_renders_to_framebuffer ||
- //       (gfx_msaa_level > 1 && gfx_current_dimensions.width == gfx_current_game_window_viewport.width &&
- //        gfx_current_dimensions.height == gfx_current_game_window_viewport.height)) {
- //       x += gfx_current_game_window_viewport.x;
- //       y += gfx_current_window_dimensions.height -
- //            (gfx_current_game_window_viewport.y + gfx_current_game_window_viewport.height);
- //   }
+    if (!game_renders_to_framebuffer ||
+        (gfx_msaa_level > 1 && gfx_current_dimensions.width == gfx_current_game_window_viewport.width &&
+         gfx_current_dimensions.height == gfx_current_game_window_viewport.height)) {
+        x += gfx_current_game_window_viewport.x;
+        y += gfx_current_window_dimensions.height -
+             (gfx_current_game_window_viewport.y + gfx_current_game_window_viewport.height);
+    }
 }
 
 void gfx_get_pixel_depth_prepare(float x, float y) {
