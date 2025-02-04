@@ -636,16 +636,16 @@ void Gui::DrawGame() {
     } else if (CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled", 0)) {
         if (!CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".PixelPerfectMode", 0)) {
             if (!CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IgnoreAspectCorrection", 0)) {
-                int sWdth = size.y * gfx_current_dimensions.width / gfx_current_dimensions.height;
-                int sHght = size.x * gfx_current_dimensions.height / gfx_current_dimensions.width;
-                int sPosX = floor(size.x / 2 - sWdth / 2);
-                int sPosY = floor(size.y / 2 - sHght / 2);
-                if (sPosY < 0) { // pillarbox
-                    sPosY = 0;   // clamp y position
+                float sWdth = size.y * gfx_current_dimensions.width / gfx_current_dimensions.height;
+                float sHght = size.x * gfx_current_dimensions.height / gfx_current_dimensions.width;
+                float sPosX = floor(size.x / 2.0f - sWdth / 2.0f);
+                float sPosY = floor(size.y / 2.0f - sHght / 2.0f);
+                if (sPosY < 0.0f) { // pillarbox
+                    sPosY = 0.0f;   // clamp y position
                     sHght = size.y; // reset height
                 }
-                if (sPosX < 0) { // letterbox
-                    sPosX = 0;   // clamp x position
+                if (sPosX < 0.0f) { // letterbox
+                    sPosX = 0.0f;   // clamp x position
                     sWdth = size.x; // reset width
                 }
                 pos = ImVec2(sPosX, sPosY);
@@ -653,10 +653,10 @@ void Gui::DrawGame() {
             }
         } else { // in pixel perfect mode it's much easier
             const int factor = GetIntegerScaleFactor();
-            int sPosX = floor(size.x / 2 - (gfx_current_dimensions.width * factor) / 2);
-            int sPosY = floor(size.y / 2 - (gfx_current_dimensions.height * factor) / 2);
+            float sPosX = floor(size.x / 2.0f - (gfx_current_dimensions.width * factor) / 2.0f);
+            float sPosY = floor(size.y / 2.0f - (gfx_current_dimensions.height * factor) / 2.0f);
             pos = ImVec2(sPosX, sPosY);
-            size = ImVec2(int(gfx_current_dimensions.width) * factor, int(gfx_current_dimensions.height) * factor);
+            size = ImVec2(float(gfx_current_dimensions.width) * factor, float(gfx_current_dimensions.height) * factor);
         }
     }
     if (gfxFramebuffer) {
