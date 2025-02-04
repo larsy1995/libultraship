@@ -636,22 +636,38 @@ void Gui::DrawGame() {
     } else if (CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled", 0)) {
         if (!CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".PixelPerfectMode", 0)) {
             if (!CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IgnoreAspectCorrection", 0)) {
-                float sWdth = size.y * gfx_current_dimensions.width / gfx_current_dimensions.height;
-                float sHght = size.x * gfx_current_dimensions.height / gfx_current_dimensions.width;
-                float sPosX = floor(size.x / 2.0f - sWdth / 2.0f);
-                float sPosY = floor(size.y / 2.0f - sHght / 2.0f);
-                if (sPosY < 0.0f) { // pillarbox
-                    sPosY = 0.0f;   // clamp y position
-                    sHght = size.y; // reset height
+                // Calculate the effective scale.
+                // This assumes that gfx_current_dimensions was computed as:
+                //   gfx_current_dimensions.width = (size.x * factor) * internal_mul (on macOS)
+                // so that multiplying size.x by internal_mul gives you the intended "base" width.
+                float effectiveScale = (float)gfx_current_dimensions.width / (size.x * gfx_current_dimensions.internal_mul);
+                const float tolerance = 0.001f;
+                if (fabs(effectiveScale - 0.5f) < tolerance) {
+                    // Degenerate case: internal resolution equals 50% of the physical size,
+                    // meaning the internal resolution equals the viewport size (logical).
+                    // Bypass aspect correction.
+                    pos = ImVec2(0, 0);
+                    // Use the entire available size.
+                    // (Alternatively, you can assign size to a stored viewport size if desired.)
+                } else {
+                    // Normal aspect correction math:
+                    float sWdth = size.y * gfx_current_dimensions.width / gfx_current_dimensions.height;
+                    float sHght = size.x * gfx_current_dimensions.height / gfx_current_dimensions.width;
+                    float sPosX = floor(size.x / 2.0f - sWdth / 2.0f);
+                    float sPosY = floor(size.y / 2.0f - sHght / 2.0f);
+                    if (sPosY < 0.0f) { // pillarbox
+                        sPosY = 0.0f;   // clamp y position
+                        sHght = size.y; // reset height
+                    }
+                    if (sPosX < 0.0f) { // letterbox
+                        sPosX = 0.0f;   // clamp x position
+                        sWdth = size.x; // reset width
+                    }
+                    pos = ImVec2(sPosX, sPosY);
+                    size = ImVec2(sWdth, sHght);
                 }
-                if (sPosX < 0.0f) { // letterbox
-                    sPosX = 0.0f;   // clamp x position
-                    sWdth = size.x; // reset width
-                }
-                pos = ImVec2(sPosX, sPosY);
-                size = ImVec2(sWdth, sHght);
             }
-        } else { // in pixel perfect mode it's much easier
+        } else { // In pixel perfect mode it's much easier
             const int factor = GetIntegerScaleFactor();
             float sPosX = floor(size.x / 2.0f - (gfx_current_dimensions.width * factor) / 2.0f);
             float sPosY = floor(size.y / 2.0f - (gfx_current_dimensions.height * factor) / 2.0f);
