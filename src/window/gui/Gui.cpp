@@ -568,6 +568,7 @@ void Gui::CalculateGameViewport() {
     mainPos.x -= mTemporaryWindowPos.x;
     mainPos.y -= mTemporaryWindowPos.y;
     ImVec2 size = ImGui::GetContentRegionAvail();
+    SPDLOG_DEBUG("Logical viewport size: {} x {}", size.x, size.y);
 //    int factor = retina_factor();
 //#ifdef __APPLE__
  //   gfx_current_dimensions.width = (uint32_t)((size.x*factor) * gfx_current_dimensions.internal_mul);
@@ -575,6 +576,8 @@ void Gui::CalculateGameViewport() {
 //#else
     gfx_current_dimensions.width = (uint32_t)(size.x * gfx_current_dimensions.internal_mul);
     gfx_current_dimensions.height = (uint32_t)(size.y * gfx_current_dimensions.internal_mul);
+    SPDLOG_DEBUG("Internal resolution (gfx_current_dimensions): {} x {}",
+             gfx_current_dimensions.width, gfx_current_dimensions.height);
 //    #endif
     gfx_current_game_window_viewport.x = (int16_t)mainPos.x;
     gfx_current_game_window_viewport.y = (int16_t)mainPos.y;
@@ -661,7 +664,8 @@ void Gui::DrawGame() {
     }
     if (gfxFramebuffer) {
         ImGui::SetCursorPos(pos);
-        ImGui::Image(reinterpret_cast<ImTextureID>(gfxFramebuffer), size, ImVec2(0, 0), ImVec2(1, 1));
+        ImGui::Image(reinterpret_cast<ImTextureID>(gfxFramebuffer), size);
+
     }
 
     ImGui::End();
@@ -816,6 +820,7 @@ std::shared_ptr<GuiWindow> Gui::GetGuiWindow(const std::string& name) {
 
 void Gui::LoadGuiTexture(const std::string& name, const Fast::Texture& res, const ImVec4& tint) {
     GfxRenderingAPI* api = gfx_get_current_rendering_api();
+    SPDLOG_DEBUG("Uploading texture with dimensions: {} x {}", res.Width, res.Height);
     std::vector<uint8_t> texBuffer;
     texBuffer.reserve(res.Width * res.Height * 4);
 
