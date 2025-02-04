@@ -560,7 +560,7 @@ void Gui::CalculateGameViewport() {
     ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize |
                              ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground;
 
-    ImGui::Begin("Main Game", nullptr, flags);
+    ImGui::Begin("Main Game (Viewport)", nullptr, flags);
     ImGui::PopStyleVar(3);
     ImGui::PopStyleColor();
 

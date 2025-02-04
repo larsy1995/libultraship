@@ -670,7 +670,7 @@ int retina_factor() {
     int factorW = pixelWidth / (int)logicalWidth;
     int factorH = pixelHeight / (int)logicalHeight;
     int factor = std::min(factorW, factorH);
-    return (factor >= 1) ? factor : 1;
+    return (factor > 1) ? factor : 1;
 }
 static void gfx_sdl_swap_buffers_begin() {
     sync_framerate_with_timer();
