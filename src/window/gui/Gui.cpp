@@ -626,72 +626,45 @@ void Gui::DrawGame() {
 
     GetGameOverlay()->Draw();
 
-ImVec2 mainPos = ImGui::GetWindowPos();
-ImVec2 size = ImGui::GetContentRegionAvail();
-ImVec2 pos = ImVec2(0, 0);
-
-if (CVarGetInteger(CVAR_LOW_RES_MODE, 0) == 1) { // N64 Mode takes priority
-    const float sw = size.y * 320.0f / 240.0f;
-    pos = ImVec2(floor(size.x / 2 - sw / 2), 0);
-    size = ImVec2(sw, size.y);
-} else if (CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled", 0)) {
-    if (!CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".PixelPerfectMode", 0)) {
-        if (!CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IgnoreAspectCorrection", 0)) {
-
-            // Compute effective scale.
-            // Here we assume gfx_current_dimensions.width was computed as:
-            //    gfx_current_dimensions.width = (uint32_t)((size.x * factor) * internal_mul)
-            // so that size.x * internal_mul gives the “base” resolution.
-            float effectiveScale = (float)gfx_current_dimensions.width / (size.x * gfx_current_dimensions.internal_mul);
-            const float tolerance = 0.001f;
-            if (fabs(effectiveScale - 0.5f) < tolerance) {
-                // In the degenerate case where internal resolution equals 50% of the physical size
-                // (so that logically internal resolution equals the viewport),
-                // force the drawing to fill the viewport exactly.
-                pos = ImVec2(0, 0);
-                // 'size' is already the full available viewport size.
-            } else {
+    ImVec2 mainPos = ImGui::GetWindowPos();
+    ImVec2 size = ImGui::GetContentRegionAvail();
+    ImVec2 pos = ImVec2(0, 0);
+    if (CVarGetInteger(CVAR_LOW_RES_MODE, 0) == 1) { // N64 Mode takes priority
+        const float sw = size.y * 320.0f / 240.0f;
+        pos = ImVec2(floor(size.x / 2 - sw / 2), 0);
+        size = ImVec2(sw, size.y);
+    } else if (CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".Enabled", 0)) {
+        if (!CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".PixelPerfectMode", 0)) {
+            if (!CVarGetInteger(CVAR_PREFIX_ADVANCED_RESOLUTION ".IgnoreAspectCorrection", 0)) {
                 float sWdth = size.y * gfx_current_dimensions.width / gfx_current_dimensions.height;
                 float sHght = size.x * gfx_current_dimensions.height / gfx_current_dimensions.width;
                 float sPosX = floor(size.x / 2.0f - sWdth / 2.0f);
                 float sPosY = floor(size.y / 2.0f - sHght / 2.0f);
                 if (sPosY < 0.0f) { // pillarbox
-                    sPosY = 0.0f;
-                    sHght = size.y;
+                    sPosY = 0.0f;   // clamp y position
+                    sHght = size.y; // reset height
                 }
                 if (sPosX < 0.0f) { // letterbox
-                    sPosX = 0.0f;
-                    sWdth = size.x;
+                    sPosX = 0.0f;   // clamp x position
+                    sWdth = size.x; // reset width
                 }
                 pos = ImVec2(sPosX, sPosY);
                 size = ImVec2(sWdth, sHght);
             }
+        } else { // in pixel perfect mode it's much easier
+            const int factor = GetIntegerScaleFactor();
+            float sPosX = floor(size.x / 2.0f - (gfx_current_dimensions.width * factor) / 2.0f);
+            float sPosY = floor(size.y / 2.0f - (gfx_current_dimensions.height * factor) / 2.0f);
+            pos = ImVec2(sPosX, sPosY);
+            size = ImVec2(float(gfx_current_dimensions.width) * factor, float(gfx_current_dimensions.height) * factor);
         }
-    } else { // In pixel perfect mode it's much easier
-        const int factor = GetIntegerScaleFactor();
-        float sPosX = floor(size.x / 2.0f - (gfx_current_dimensions.width * factor) / 2.0f);
-        float sPosY = floor(size.y / 2.0f - (gfx_current_dimensions.height * factor) / 2.0f);
-        pos = ImVec2(sPosX, sPosY);
-        size = ImVec2(float(gfx_current_dimensions.width) * factor,
-                      float(gfx_current_dimensions.height) * factor);
     }
-}
-
-if (gfxFramebuffer) {
-    ImGui::SetCursorPos(pos);
-    // In the degenerate case we force full UV mapping,
-    // so that the entire texture is used.
-    // Otherwise, use the default ImGui::Image call.
-    float effectiveScale = (float)gfx_current_dimensions.width / (size.x * gfx_current_dimensions.internal_mul);
-    const float tolerance = 0.001f;
-    if (fabs(effectiveScale - 0.5f) < tolerance) {
-        ImGui::Image(reinterpret_cast<ImTextureID>(gfxFramebuffer), size, ImVec2(0, 0), ImVec2(1, 1));
-    } else {
+    if (gfxFramebuffer) {
+        ImGui::SetCursorPos(pos);
         ImGui::Image(reinterpret_cast<ImTextureID>(gfxFramebuffer), size);
     }
-}
 
-ImGui::End();
+    ImGui::End();
 }
 
 void Gui::DrawFloatingWindows() {
