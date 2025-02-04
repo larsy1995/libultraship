@@ -575,7 +575,7 @@ void Gui::CalculateGameViewport() {
 #else
     gfx_current_dimensions.width = (uint32_t)(size.x * gfx_current_dimensions.internal_mul);
     gfx_current_dimensions.height = (uint32_t)(size.y * gfx_current_dimensions.internal_mul);
-#endif
+    #endif
     gfx_current_game_window_viewport.x = (int16_t)mainPos.x;
     gfx_current_game_window_viewport.y = (int16_t)mainPos.y;
 #ifdef __APPLE__
@@ -662,7 +662,7 @@ void Gui::DrawGame() {
             float sPosX = floor(size.x / 2.0f - (gfx_current_dimensions.width * factor) / 2.0f);
             float sPosY = floor(size.y / 2.0f - (gfx_current_dimensions.height * factor) / 2.0f);
             pos = ImVec2(sPosX, sPosY);
-            size = ImVec2(float(gfx_current_dimensions.width/scalingFactor) * factor, float(gfx_current_dimensions.height/scalingFactor) * factor);
+            size = ImVec2(float(gfx_current_dimensions.width) * factor, float(gfx_current_dimensions.height) * factor);
         }
     }
     if (gfxFramebuffer) {
