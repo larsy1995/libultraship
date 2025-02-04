@@ -493,7 +493,7 @@ static void gfx_sdl_set_mouse_callbacks(bool (*on_btn_down)(int btn), bool (*on_
 
 static void gfx_sdl_get_dimensions(uint32_t* width, uint32_t* height, int32_t* posX, int32_t* posY) {
 #ifdef __APPLE__
-    SDL_GetRendererOutputSize(renderer, static_cast<int*>((void*)width), static_cast<int*>((void*)height));
+    SDL_GetWindowSize(wnd, static_cast<int*>((void*)width), static_cast<int*>((void*)height));
 #else
     SDL_GL_GetDrawableSize(wnd, static_cast<int*>((void*)width), static_cast<int*>((void*)height));
     #endif
@@ -574,7 +574,7 @@ static void gfx_sdl_handle_single_event(SDL_Event& event) {
             switch (event.window.event) {
                 case SDL_WINDOWEVENT_SIZE_CHANGED:
 #ifdef __APPLE__
-                    SDL_GetRendererOutputSize(renderer, &window_width, &window_height);
+                    SDL_GetWindowSize(wnd, &window_width, &window_height);
 #else
                         SDL_GL_GetDrawableSize(wnd, &window_width, &window_height);
 #endif
@@ -664,7 +664,7 @@ static inline void sync_framerate_with_timer() {
 }
 int retina_factor() {
     int pixelWidth = 0, pixelHeight = 0;
-    SDL_GetRendererOutputSize(renderer, &pixelWidth, &pixelHeight);
+    SDL_GL_GetDrawableSize(wnd, &pixelWidth, &pixelHeight);
     float logicalWidth = ImGui::GetContentRegionAvail().x;
     float logicalHeight = ImGui::GetContentRegionAvail().y;
     int factorW = pixelWidth / (int)logicalWidth;

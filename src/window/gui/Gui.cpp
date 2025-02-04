@@ -661,7 +661,7 @@ void Gui::DrawGame() {
     }
     if (gfxFramebuffer) {
         ImGui::SetCursorPos(pos);
-        ImGui::Image(reinterpret_cast<ImTextureID>(gfxFramebuffer), size);
+        ImGui::Image(reinterpret_cast<ImTextureID>(gfxFramebuffer), size, ImVec2(0, 0), ImVec2(0.5f, 0.5f));
     }
 
     ImGui::End();
